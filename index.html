@@ -16,27 +16,42 @@
     .stat-num { font-size: 24px; font-weight: 600; color: #1a237e; }
     .stat-lbl { font-size: 12px; color: #888; margin-top: 2px; }
 
-    .controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 1.5rem; align-items: center; }
+    .controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 1rem; align-items: center; }
     select { padding: 9px 14px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; background: #fff; color: #111; }
     .btn { padding: 9px 20px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; cursor: pointer; background: #fff; color: #111; }
     .btn:hover { background: #f0f0f0; }
     .btn-primary { background: #1a237e; color: #fff; border-color: #1a237e; }
     .btn-primary:hover { background: #283593; }
-    .btn-danger { border-color: #ccc; }
+
+    /* Difficulty buttons */
+    .difficulty-row { display: flex; gap: 8px; margin-bottom: 1.5rem; }
+    .diff-btn { flex: 1; padding: 8px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; background: #fff; transition: all 0.15s; }
+    .diff-btn:hover { opacity: 0.85; }
+    .diff-btn.easy   { color: #2e7d32; border-color: #a5d6a7; }
+    .diff-btn.medium { color: #e65100; border-color: #ffcc80; }
+    .diff-btn.hard   { color: #b71c1c; border-color: #ef9a9a; }
+    .diff-btn.easy.active   { background: #e8f5e9; border-color: #2e7d32; }
+    .diff-btn.medium.active { background: #fff3e0; border-color: #e65100; }
+    .diff-btn.hard.active   { background: #ffebee; border-color: #b71c1c; }
 
     .card { background: #fff; border: 1px solid #ddd; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; }
-    .topic-badge { display: inline-block; font-size: 12px; padding: 3px 12px; border-radius: 20px; background: #e8eaf6; color: #1a237e; font-weight: 500; margin-bottom: 1rem; }
-    .problem-text { font-size: 18px; font-weight: 500; color: #111; margin-bottom: 1.25rem; line-height: 1.6; white-space: pre-line; }
+    .badges { display: flex; gap: 8px; margin-bottom: 1rem; align-items: center; }
+    .topic-badge { display: inline-block; font-size: 12px; padding: 3px 12px; border-radius: 20px; background: #e8eaf6; color: #1a237e; font-weight: 500; }
+    .diff-badge { display: inline-block; font-size: 12px; padding: 3px 12px; border-radius: 20px; font-weight: 500; }
+    .diff-badge.easy   { background: #e8f5e9; color: #2e7d32; }
+    .diff-badge.medium { background: #fff3e0; color: #e65100; }
+    .diff-badge.hard   { background: #ffebee; color: #b71c1c; }
 
+    .problem-text { font-size: 18px; font-weight: 500; color: #111; margin-bottom: 1.25rem; line-height: 1.6; white-space: pre-line; }
     .input-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
     .answer-input { padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; width: 220px; }
     .answer-input:focus { outline: none; border-color: #1a237e; box-shadow: 0 0 0 2px rgba(26,35,126,0.15); }
 
     .hint-link { font-size: 13px; color: #1a237e; cursor: pointer; text-decoration: underline; margin-top: 10px; display: none; }
-    .hint { margin-top: 10px; padding: 10px 14px; border-left: 3px solid #9fa8da; background: #f5f5f5; font-size: 13px; color: #444; border-radius: 0 8px 8px 0; display: none; }
+    .hint { margin-top: 10px; padding: 10px 14px; border-left: 3px solid #9fa8da; background: #f5f5f5; font-size: 13px; color: #444; border-radius: 0 8px 8px 0; display: none; white-space: pre-line; }
     .feedback { margin-top: 12px; padding: 10px 14px; border-radius: 8px; font-size: 14px; display: none; }
     .feedback.correct { background: #e8f5e9; color: #2e7d32; display: block; }
-    .feedback.wrong { background: #ffebee; color: #c62828; display: block; }
+    .feedback.wrong   { background: #ffebee; color: #c62828; display: block; }
 
     .footer { text-align: center; margin-top: 2rem; font-size: 13px; color: #aaa; }
   </style>
@@ -44,7 +59,7 @@
 <body>
 <div class="app">
   <h1>Algebra 1 Problem Generator</h1>
-  <p class="subtitle">Practice problems with instant feedback — enter answers as x=2 or x=2,x=-3</p>
+  <p class="subtitle">Select a topic and difficulty, then press New Problem</p>
 
   <div class="stats">
     <div class="stat"><div class="stat-num" id="s-total">0</div><div class="stat-lbl">attempted</div></div>
@@ -60,13 +75,22 @@
       <option value="discriminant">Discriminant</option>
       <option value="system">Linear-quadratic systems</option>
     </select>
-    <button class="btn btn-primary" onclick="newProblem()">&#8635; New problem</button>
-    <button class="btn btn-danger" onclick="resetStats()">&#x1F5D1; Reset</button>
+    <button class="btn btn-primary" onclick="newProblem()">&#8635; New Problem</button>
+    <button class="btn" onclick="resetStats()">&#x2715; Reset</button>
+  </div>
+
+  <div class="difficulty-row">
+    <button class="diff-btn easy active" onclick="setDiff('easy')">⭐ Easy</button>
+    <button class="diff-btn medium" onclick="setDiff('medium')">⭐⭐ Medium</button>
+    <button class="diff-btn hard" onclick="setDiff('hard')">⭐⭐⭐ Hard</button>
   </div>
 
   <div class="card">
-    <div class="topic-badge" id="badge">Factoring</div>
-    <div class="problem-text" id="prob">Press "New problem" to start</div>
+    <div class="badges">
+      <span class="topic-badge" id="badge-topic">Factoring</span>
+      <span class="diff-badge easy" id="badge-diff">Easy</span>
+    </div>
+    <div class="problem-text" id="prob">Press "New Problem" to start</div>
     <div class="input-row">
       <input class="answer-input" id="ans" placeholder="e.g. x=2,x=-3" onkeydown="if(event.key==='Enter')checkAnswer()">
       <button class="btn btn-primary" onclick="checkAnswer()">&#10003; Check</button>
@@ -76,93 +100,177 @@
     <div class="feedback" id="feedback"></div>
   </div>
 
-  <div class="footer">Algebra 1 Math Generator &mdash; built with GitHub Pages</div>
+  <div class="footer">Algebra 1 Math Generator &mdash; YanqinFang</div>
 </div>
 
 <script>
 let current = null;
 let total = 0, correct = 0;
+let difficulty = 'easy';
 
-function rnd(a, b) { return Math.floor(Math.random() * (b - a + 1)) + a; }
 function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function rnd(a, b) { return Math.floor(Math.random() * (b - a + 1)) + a; }
+function fmt(n) { return Math.round(n * 100) / 100; }
 
+function bStr(b) { return b === 0 ? '' : (b > 0 ? ` + ${b}x` : ` - ${Math.abs(b)}x`); }
+function cStr(c) { return c === 0 ? '' : (c > 0 ? ` + ${c}` : ` - ${Math.abs(c)}`); }
+
+// ── Difficulty config ────────────────────────────────────────────────────────
+const config = {
+  easy: {
+    roots: [-3,-2,-1,1,2,3],
+    a: [1],
+    linSlopes: [1,-1,2],
+    linConsts: [-2,0,2],
+    hRange: [-2,-1,1,2],
+    kRange: [-4,0,4],
+    sysRoots: [-2,-1,1,2],
+  },
+  medium: {
+    roots: [-5,-4,-3,-2,-1,1,2,3,4,5],
+    a: [1,1,2],
+    linSlopes: [-3,-2,-1,1,2,3],
+    linConsts: [-4,-2,0,2,4],
+    hRange: [-4,-3,-2,-1,1,2,3,4],
+    kRange: [-9,-4,-1,0,1,4,9],
+    sysRoots: [-3,-2,-1,1,2,3],
+  },
+  hard: {
+    roots: [-6,-5,-4,-3,-2,-1,1,2,3,4,5,6],
+    a: [2,3,4,5],
+    linSlopes: [-5,-4,-3,-2,-1,1,2,3,4,5],
+    linConsts: [-6,-4,-2,0,2,4,6],
+    hRange: [-5,-4,-3,-2,-1,1,2,3,4,5],
+    kRange: [-16,-9,-4,-1,0,1,4,9,16,25],
+    sysRoots: [-4,-3,-2,-1,1,2,3,4],
+  }
+};
+
+// ── Problem generators ───────────────────────────────────────────────────────
 const topics = {
+
   factor: {
     label: 'Solve by factoring',
-    gen() {
-      const r1 = pick([-5,-4,-3,-2,-1,1,2,3,4,5]);
-      const r2 = pick([-5,-4,-3,-2,-1,1,2,3,4,5]);
-      const b = -(r1 + r2), c = r1 * r2;
-      const bStr = b === 0 ? '' : (b > 0 ? ` + ${b}x` : ` - ${Math.abs(b)}x`);
-      const cStr = c === 0 ? '' : (c > 0 ? ` + ${c}` : ` - ${Math.abs(c)}`);
-      const hint = `Factor as (x ${r1 >= 0 ? '- ' + r1 : '+ ' + Math.abs(r1)})(x ${r2 >= 0 ? '- ' + r2 : '+ ' + Math.abs(r2)}) = 0`;
-      return { text: `Solve by factoring:\n  x² ${bStr}${cStr} = 0`, answers: [r1, r2], hint };
+    gen(d) {
+      const cfg = config[d];
+      const a = d === 'hard' ? pick([2,3,4]) : 1;
+      const r1 = pick(cfg.roots), r2 = pick(cfg.roots);
+      // ax² - a(r1+r2)x + a*r1*r2 = 0
+      const B = -a*(r1+r2), C = a*r1*r2;
+      const aStr = a === 1 ? '' : a;
+      let eq = `${aStr}x²${bStr(B)}${cStr(C)} = 0`;
+      const hint = d === 'hard'
+        ? `Factor out ${a} first if needed, or use the quadratic formula.\nRoots: x = ${r1}, x = ${r2}`
+        : `Look for two numbers that multiply to ${C} and add to ${B}.\nHint: (x ${r1>=0?'- '+r1:'+ '+Math.abs(r1)})(x ${r2>=0?'- '+r2:'+ '+Math.abs(r2)}) = 0`;
+      return { text: `Solve by factoring:\n  ${eq}`, answers: [r1, r2], hint };
     }
   },
+
   quadformula: {
     label: 'Quadratic formula',
-    gen() {
-      const a = pick([1,1,1,2,3]);
-      const r1 = pick([-4,-3,-2,-1,1,2,3,4]);
-      const r2 = pick([-4,-3,-2,-1,1,2,3,4]);
-      const b = -(a * (r1 + r2)), c = a * r1 * r2;
-      const bStr = b === 0 ? '' : (b > 0 ? ` + ${b}x` : ` - ${Math.abs(b)}x`);
-      const cStr = c === 0 ? '' : (c > 0 ? ` + ${c}` : ` - ${Math.abs(c)}`);
-      const aStr = a === 1 ? '' : a;
-      const hint = `a = ${a}, b = ${b}, c = ${c}. Use x = (−b ± √(b²−4ac)) / 2a`;
-      return { text: `Use the quadratic formula:\n  ${aStr}x² ${bStr}${cStr} = 0`, answers: [r1, r2], hint };
+    gen(d) {
+      const cfg = config[d];
+      const a = pick(cfg.a);
+      if (d === 'hard') {
+        // Irrational roots possible
+        const b2 = pick([-5,-3,-1,1,3,5]);
+        const c2 = pick([-7,-5,-3,-1,1,2]);
+        const disc = b2*b2 - 4*a*c2;
+        const B = b2, C = c2;
+        const aStr = a === 1 ? '' : a;
+        let ans, ansText;
+        if (disc < 0) { ans = []; ansText = 'No real solutions'; }
+        else if (disc === 0) { ans = [-B/(2*a)]; ansText = `x = ${fmt(-B/(2*a))}`; }
+        else {
+          const x1 = (-B + Math.sqrt(disc)) / (2*a);
+          const x2 = (-B - Math.sqrt(disc)) / (2*a);
+          ans = [x1, x2];
+          ansText = `x ≈ ${fmt(x1)} or x ≈ ${fmt(x2)}`;
+        }
+        const hint = `a=${a}, b=${B}, c=${C}\nDiscriminant = ${B}²−4(${a})(${C}) = ${disc}\nx = (−${B} ± √${disc}) / ${2*a}`;
+        return { text: `Use the quadratic formula (round to nearest hundredth):\n  ${aStr}x²${bStr(B)}${cStr(C)} = 0`, answers: ans, hint, irrational: true };
+      } else {
+        const r1 = pick(cfg.roots), r2 = pick(cfg.roots);
+        const B = -a*(r1+r2), C = a*r1*r2;
+        const aStr = a === 1 ? '' : a;
+        const hint = `a=${a}, b=${B}, c=${C}\nDiscriminant = ${B}²−4(${a})(${C}) = ${B*B-4*a*C}\nx = (−(${B}) ± √${B*B-4*a*C}) / ${2*a}`;
+        return { text: `Use the quadratic formula:\n  ${aStr}x²${bStr(B)}${cStr(C)} = 0`, answers: [r1, r2], hint };
+      }
     }
   },
+
   complete: {
     label: 'Complete the square',
-    gen() {
-      const h = pick([-4,-3,-2,-1,1,2,3,4]);
-      const k = pick([-9,-4,-1,0,1,4,9,16]);
-      const b = -2 * h, c = h * h + k;
-      const bStr = b === 0 ? '' : (b > 0 ? ` + ${b}x` : ` - ${Math.abs(b)}x`);
-      const cStr = c === 0 ? '' : (c > 0 ? ` + ${c}` : ` - ${Math.abs(c)}`);
-      const disc = h * h - k;
-      let answers;
-      if (disc < 0) answers = [];
-      else if (disc === 0) answers = [h];
-      else { const sq = Math.sqrt(disc); answers = [h + sq, h - sq]; }
-      const hint = `Rewrite as (x − ${h})² = ${-k}. Vertex is (${h}, ${k}).`;
-      return { text: `Complete the square to solve:\n  x² ${bStr}${cStr} = 0\n\nAlso state the vertex.`, answers, hint, vertex: `(${h}, ${k})` };
+    gen(d) {
+      const cfg = config[d];
+      const h = pick(cfg.hRange);
+      const k = pick(cfg.kRange);
+      const b = -2*h, c = h*h + k;
+      const disc = h*h - k;
+      let answers, vertexStr;
+      if (disc < 0) { answers = []; }
+      else if (disc === 0) { answers = [h]; }
+      else { const sq = Math.sqrt(disc); answers = [fmt(h+sq), fmt(h-sq)]; }
+      vertexStr = `(${h}, ${k})`;
+      const hint = `Step 1: Move constant → x² ${bStr(b)} = ${-c}\nStep 2: Add (${b}/2)² = ${h*h} to both sides\nStep 3: (x ${h>=0?'− '+h:'+ '+Math.abs(h)})² = ${-k}\nVertex: ${vertexStr}`;
+      return { text: `Complete the square to solve:\n  x²${bStr(b)}${cStr(c)} = 0\n\nAlso state the vertex.`, answers, hint, vertex: vertexStr };
     }
   },
+
   discriminant: {
     label: 'Discriminant',
-    gen() {
-      const type = pick(['two','one','none']);
+    gen(d) {
+      const types = d === 'easy' ? ['two','one','none'] : ['two','two','one','none'];
+      const type = pick(types);
       let a, b, c, label;
-      if (type === 'two') { a=1; b=pick([-5,-4,-3,3,4,5]); c=pick([-6,-4,-3,-2,-1]); label='2 real solutions'; }
-      else if (type === 'one') { a=1; b=pick([-6,-4,-2,2,4,6]); c=(b/2)*(b/2); label='1 real solution'; }
-      else { a=1; b=pick([-2,-1,1,2]); c=pick([5,6,8,10]); label='No real solutions'; }
+      if (d === 'hard') {
+        a = pick([2,3]);
+        if (type === 'two') { b=pick([-7,-5,-3,3,5,7]); c=pick([-6,-4,-2,-1]); label='2 real solutions'; }
+        else if (type === 'one') { b=pick([-6,-4,-2,2,4,6]); c=b*b/(4*a); label='1 real solution'; }
+        else { b=pick([-1,1,2]); c=pick([8,10,12,15]); label='No real solutions'; }
+      } else {
+        a = 1;
+        if (type === 'two') { b=pick([-5,-4,-3,3,4,5]); c=pick([-6,-4,-3,-2,-1]); label='2 real solutions'; }
+        else if (type === 'one') { b=pick([-6,-4,-2,2,4,6]); c=(b/2)*(b/2); label='1 real solution'; }
+        else { b=pick([-2,-1,1,2]); c=pick([5,6,8,10]); label='No real solutions'; }
+      }
       const disc = b*b - 4*a*c;
-      const bStr = b===0?'':(b>0?` + ${b}x`:` - ${Math.abs(b)}x`);
-      const cStr = c===0?'':(c>0?` + ${c}`:` - ${Math.abs(c)}`);
-      const hint = `Discriminant = b² − 4ac = ${b}² − 4(${a})(${c}) = ${disc}`;
-      return { text: `How many real solutions?\n  x² ${bStr}${cStr} = 0`, answers: [label], hint };
+      const aStr = a === 1 ? '' : a;
+      const hint = `Discriminant = b²−4ac\n= (${b})²−4(${a})(${c})\n= ${b*b}−${4*a*c}\n= ${disc}\n\n${disc>0?'> 0 → 2 real solutions':disc===0?'= 0 → 1 real solution':'< 0 → No real solutions'}`;
+      return { text: `How many real solutions?\n  ${aStr}x²${bStr(b)}${cStr(c)} = 0`, answers: [label], hint };
     }
   },
+
   system: {
     label: 'Linear-quadratic system',
-    gen() {
-      const x1 = pick([-3,-2,-1,1,2,3]);
-      const x2 = pick([-3,-2,-1,1,2,3]);
-      const m = pick([-2,-1,1,2]);
-      const b_lin = pick([-4,-2,0,2,4]);
-      const y1 = m*x1 + b_lin, y2 = m*x2 + b_lin;
+    gen(d) {
+      const cfg = config[d];
+      const x1 = pick(cfg.sysRoots), x2 = pick(cfg.sysRoots);
+      const m = pick(cfg.linSlopes);
+      const bl = pick(cfg.linConsts);
+      const y1 = m*x1+bl, y2 = m*x2+bl;
       const B = -(x1+x2), C = x1*x2;
-      const BStr = B===0?'':(B>0?` + ${B}x`:` - ${Math.abs(B)}x`);
-      const CStr = C===0?'':(C>0?` + ${C}`:` - ${Math.abs(C)}`);
       const mStr = m===1?'':(m===-1?'-':m);
-      const bStr = b_lin===0?'':(b_lin>0?` + ${b_lin}`:` − ${Math.abs(b_lin)}`);
-      const hint = `Substitute y = ${mStr}x${bStr} into the quadratic and solve.`;
-      return { text: `Solve the system:\n  y = x²${BStr}${CStr}\n  y = ${mStr}x${bStr}`, answers: [[x1,y1],[x2,y2]], hint };
+      const blStr = bl===0?'':(bl>0?` + ${bl}`:` − ${Math.abs(bl)}`);
+      const hint = `Substitute y = ${mStr}x${blStr} into the quadratic:\n  x²${bStr(B)}${cStr(C)} = ${mStr}x${blStr}\nRearrange to standard form and solve.`;
+      return {
+        text: `Solve the system:\n  y = x²${bStr(B)}${cStr(C)}\n  y = ${mStr}x${blStr}`,
+        answers: [[x1,y1],[x2,y2]], hint
+      };
     }
   }
 };
+
+// ── UI helpers ───────────────────────────────────────────────────────────────
+function setDiff(d) {
+  difficulty = d;
+  document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.diff-btn.' + d).classList.add('active');
+  const badge = document.getElementById('badge-diff');
+  badge.className = 'diff-badge ' + d;
+  badge.textContent = d.charAt(0).toUpperCase() + d.slice(1);
+  newProblem();
+}
 
 function parseAnswers(str) {
   return str.toLowerCase().replace(/\s/g,'').split(',').map(s => {
@@ -181,22 +289,21 @@ function checkAnswer() {
 
   let ok = false;
   if (topic === 'discriminant') {
-    const lower = raw.toLowerCase();
-    const a = current.answers[0].toLowerCase();
+    const lower = raw.toLowerCase(), a = current.answers[0].toLowerCase();
     if (a.includes('2')) ok = lower.includes('2') || lower.includes('two');
     else if (a.includes('1')) ok = lower.includes('1') || lower.includes('one');
     else ok = lower.includes('no') || lower.includes('0') || lower.includes('zero');
   } else if (topic === 'system') {
     const pairs = current.answers;
-    const nums = raw.replace(/[()]/g,'').split(/[,;]+/).map(s => parseFloat(s.trim())).filter(v => !isNaN(v));
+    const nums = raw.replace(/[()]/g,'').split(/[,;]+/).map(s => parseFloat(s)).filter(v => !isNaN(v));
     const got = [];
-    for (let i = 0; i < nums.length - 1; i += 2) got.push([nums[i], nums[i+1]]);
-    ok = pairs.every(p => got.some(g => Math.abs(g[0]-p[0]) < 0.1 && Math.abs(g[1]-p[1]) < 0.1));
+    for (let i = 0; i < nums.length-1; i += 2) got.push([nums[i], nums[i+1]]);
+    ok = pairs.every(p => got.some(g => Math.abs(g[0]-p[0])<0.1 && Math.abs(g[1]-p[1])<0.1));
   } else {
     const got = parseAnswers(raw);
-    const exp = current.answers.map(v => Math.round(v * 100) / 100);
-    if (exp.length === 0) ok = got.length === 0 || raw.toLowerCase().includes('no');
-    else ok = exp.every(v => got.some(g => Math.abs(g - v) < 0.05));
+    const exp = current.answers.map(v => fmt(v));
+    if (exp.length === 0) ok = got.length===0 || raw.toLowerCase().includes('no');
+    else ok = exp.every(v => got.some(g => Math.abs(g-v)<0.05));
   }
 
   if (ok) correct++;
@@ -204,27 +311,27 @@ function checkAnswer() {
 
   fb.className = 'feedback ' + (ok ? 'correct' : 'wrong');
   if (ok) {
-    fb.innerHTML = '&#10003; Correct!' + (current.vertex ? ' Vertex: ' + current.vertex : '');
+    fb.innerHTML = '&#10003; Correct!' + (current.vertex ? '  Vertex: ' + current.vertex : '');
   } else {
-    const ans = topic === 'discriminant' ? current.answers[0] :
-                topic === 'system' ? current.answers.map(p => `(${p[0]}, ${p[1]})`).join(' and ') :
-                current.answers.length === 0 ? 'No real solutions' :
-                current.answers.map(v => `x = ${Math.round(v*100)/100}`).join(' or ');
-    fb.innerHTML = '&#10007; Not quite. Answer: ' + ans;
+    let ans;
+    if (topic === 'discriminant') ans = current.answers[0];
+    else if (topic === 'system') ans = current.answers.map(p=>`(${fmt(p[0])}, ${fmt(p[1])})`).join(' and ');
+    else if (current.answers.length === 0) ans = 'No real solutions';
+    else ans = current.answers.map(v=>`x = ${fmt(v)}`).join(' or ');
+    fb.innerHTML = '&#10007; Not quite.  Answer: ' + ans;
   }
 }
 
 function showHint() {
-  const h = document.getElementById('hint');
-  h.style.display = 'block';
-  h.textContent = current.hint;
+  document.getElementById('hint').style.display = 'block';
+  document.getElementById('hint').textContent = current.hint;
   document.getElementById('hint-link').style.display = 'none';
 }
 
 function newProblem() {
   const topic = document.getElementById('topic').value;
-  current = topics[topic].gen();
-  document.getElementById('badge').textContent = topics[topic].label;
+  current = topics[topic].gen(difficulty);
+  document.getElementById('badge-topic').textContent = topics[topic].label;
   document.getElementById('prob').innerText = current.text;
   document.getElementById('ans').value = '';
   document.getElementById('feedback').className = 'feedback';
@@ -236,10 +343,10 @@ function newProblem() {
 function updateStats() {
   document.getElementById('s-total').textContent = total;
   document.getElementById('s-correct').textContent = correct;
-  document.getElementById('s-pct').textContent = total ? Math.round(correct / total * 100) + '%' : '—';
+  document.getElementById('s-pct').textContent = total ? Math.round(correct/total*100)+'%' : '—';
 }
 
-function resetStats() { total = 0; correct = 0; updateStats(); newProblem(); }
+function resetStats() { total=0; correct=0; updateStats(); newProblem(); }
 
 newProblem();
 </script>
